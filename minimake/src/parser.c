@@ -87,10 +87,10 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
     while (token != NULL)
     {
         dlist_push_back(data->dependencies, strdup(token));
-        token = strtok(NULL, delim);
 
         // --- EXPAND VARIABLES ---
         token = expand(token, minimake, data);
+        token = strtok(NULL, delim);
     }
 }
 
@@ -210,7 +210,7 @@ struct minimake *read_file(char *argv)
     // --- READ FILE LINE BY LINE ---
     while ((read = getline(&line, &len, file)) != -1)
     {
-        if (strlen(line) == 0 || strspn(line, " \t") == strlen(line) || line[0] == '#')
+        if (strlen(line) == 0 || strspn(line, " \t") == strlen(line) || line[0] == '#' || line[0] == '\n')
         {
             continue;
         }

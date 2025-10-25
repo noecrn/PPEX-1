@@ -99,23 +99,24 @@ char *expand(char *str, struct minimake *data, struct rule *cur_rule)
     if (!data || strstr(str, "$(") == NULL || strchr(str, ')') == NULL)
         return str;
 
-    char *res = malloc(sizeof(char *));
+    char *res = "";
 
     char *start = strchr(str, '$');
     if (*(start+1) == '(')
     {
         // --- PARSE THE VARIABLE ---
         char buf[1024];
-        int i = 0;
+        int i = 1;
         while (*(start + i) != ')')
         {
-            buf[i] = *start;
+            if (*(start + i) == '(')
+              buf[i-1] = *(start + i);
             i++;
         }
-        buf[i] = '\0';
+        buf[i-1] = '\0';
 
         // --- FIND THE VARIABLE ---
-        find_in_var(buf, i, data, cur_rule);
+        res = find_in_var(buf, i, data, cur_rule);
     }
     else
     {
