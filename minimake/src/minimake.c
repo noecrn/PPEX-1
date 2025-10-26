@@ -2,6 +2,7 @@
 
 #include "parser.h"
 #include "dlist/dlist.h"
+#include "destroy.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -114,5 +115,6 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    destroy_minimake(data);
     return 0;
 }

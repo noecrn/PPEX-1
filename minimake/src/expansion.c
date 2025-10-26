@@ -96,7 +96,7 @@ static char *find_in_var(char buf[], int size, struct minimake *data, struct rul
 
 char *expand(char *str, struct minimake *data, struct rule *cur_rule)
 {
-    if (!data || strstr(str, "$(") == NULL || strchr(str, ')') == NULL)
+    if (!data || strchr(str, '$') == NULL)
         return str;
 
     char *res = "";

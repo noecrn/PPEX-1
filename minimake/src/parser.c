@@ -83,14 +83,27 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
 
     // --- SPLIT DEPENDENCIES ---
     char *delim = " \t\n";
-    char *token = strtok(dep, delim);
-    while (token != NULL)
+    for (char *token = strtok(dep, delim); token; token = strtok(NULL, delim))
     {
-        dlist_push_back(data->dependencies, strdup(token));
-
         // --- EXPAND VARIABLES ---
-        token = expand(token, minimake, data);
-        token = strtok(NULL, delim);
+        char *exp = expand(token, minimake, data);
+        if (!exp)
+            exp = strdup("");
+
+        for (char *sub = strtok(exp, delim); sub; sub = strtok(NULL, delim))
+        {
+            if (*sub == '\0')
+                continue;
+
+            char *temp = strdup(sub);
+            if (!temp)
+            {
+                free(exp);
+                fprintf(stderr, "Strdup failed");
+                exit(2);
+            }
+            dlist_push_back(data->dependencies, temp);
+        }
     }
 }
 
