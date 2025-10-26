@@ -213,6 +213,7 @@ struct minimake *read_file(char *argv)
     if (!data)
     {
         fprintf(stderr, "Malloc error");
+        free(line);
         exit(2);
     }
 

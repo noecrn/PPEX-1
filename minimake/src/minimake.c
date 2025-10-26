@@ -110,10 +110,7 @@ int main(int argc, char *argv[])
 
     struct minimake *data = read_file(path);
     if (flag_p)
-    {
         print_output(data);
-        return 0;
-    }
 
     destroy_minimake(data);
     return 0;
