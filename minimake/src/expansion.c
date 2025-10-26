@@ -33,7 +33,7 @@ static int get_dep_len(struct rule *cur_rule)
     return total_len;
 }
 
-static char *find_in_var(char buf[], int size, struct minimake *data, struct rule *cur_rule)
+static char *find_in_var(char buf[], int size, struct minimake *data)
 {
     if (!data->variable)
         return "";
@@ -47,40 +47,6 @@ static char *find_in_var(char buf[], int size, struct minimake *data, struct rul
         // --- LOOK FOR SINGLE VARIABLE ---
         if (size == 2)
         {
-            // --- IF $@ RETURN TARGET ---
-            if (buf[1] == '@')
-            {
-                return cur_rule->target;
-            }
-            // --- IF $< RETURN THE FIRST DEPENDENCIE ---
-            else if (buf[1] == '<')
-            {
-                if (cur_rule->dependencies->head != NULL)
-                    return "";
-
-                return cur_rule->dependencies->head->data;
-            }
-            // --- IF $^ RETURN ALL DEPENDENCIES ---
-            else if (buf[1] == '^')
-            {
-                char *res = malloc(get_dep_len(cur_rule) + 1);
-                res[0] = '\0';
-
-                // --- ITERATE THROUGH DEPENDENCIES ---
-                struct dlist_item *cur = cur_rule->dependencies->head;
-                while (cur != NULL)
-                {
-                    // --- ADD SPACE AT THE BEGINNING ---
-                    if (res[0] != '\0')
-                        strcat(res, " ");
-
-                    // --- ADD DEPENDENCIE ---
-                    strcat(res, cur->data);
-                    cur = cur->next;
-                }
-
-                return res;
-            }
         }
         // --- LOOK FOR GENERAL VARIABLE ---
         else if (strcmp(temp_var->name, buf))
@@ -116,11 +82,44 @@ char *expand(char *str, struct minimake *data, struct rule *cur_rule)
         buf[i-1] = '\0';
 
         // --- FIND THE VARIABLE ---
-        res = find_in_var(buf, i, data, cur_rule);
+        res = find_in_var(buf, i, data);
     }
     else
     {
-        // handle $@
+        // --- IF $@ RETURN TARGET ---
+        if (*(start+2) == '@')
+        {
+            return cur_rule->target;
+        }
+        // --- IF $< RETURN THE FIRST DEPENDENCIE ---
+        else if (*(start+2) == '<')
+        {
+            if (cur_rule->dependencies->head != NULL)
+                return "";
+
+            return cur_rule->dependencies->head->data;
+        }
+        // --- IF $^ RETURN ALL DEPENDENCIES ---
+        else if (*(start+2) == '^')
+        {
+            char *res = malloc(get_dep_len(cur_rule) + 1);
+            res[0] = '\0';
+
+            // --- ITERATE THROUGH DEPENDENCIES ---
+            struct dlist_item *cur = cur_rule->dependencies->head;
+            while (cur != NULL)
+            {
+                // --- ADD SPACE AT THE BEGINNING ---
+                if (res[0] != '\0')
+                    strcat(res, " ");
+
+                // --- ADD DEPENDENCIE ---
+                strcat(res, cur->data);
+                cur = cur->next;
+            }
+
+            return res;
+        }
     }
 
     return res;
