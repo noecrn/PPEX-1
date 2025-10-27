@@ -9,6 +9,7 @@
 !_TAG_FIELD_DESCRIPTION	pattern	/pattern/
 !_TAG_FIELD_DESCRIPTION	typeref	/Type and name of a variable or typedef/
 !_TAG_FIELD_DESCRIPTION!C++	name	/aliased names/
+!_TAG_FIELD_DESCRIPTION!XML	uri	/uri associated with name prefix/
 !_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
 !_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
 !_TAG_KIND_DESCRIPTION!C	d,macro	/macro definitions/
@@ -38,6 +39,11 @@
 !_TAG_KIND_DESCRIPTION!Make	I,makefile	/makefiles/
 !_TAG_KIND_DESCRIPTION!Make	m,macro	/macros/
 !_TAG_KIND_DESCRIPTION!Make	t,target	/targets/
+!_TAG_KIND_DESCRIPTION!PlistXML	k,key	/keys/
+!_TAG_KIND_DESCRIPTION!XML	i,id	/id attributes/
+!_TAG_KIND_DESCRIPTION!XML	n,nsprefix	/namespace prefixes/
+!_TAG_KIND_DESCRIPTION!XML	r,root	/root elements/
+!_TAG_KIND_DESCRIPTION!Yaml	a,anchor	/anchors/
 !_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
 !_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
 !_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
@@ -45,6 +51,9 @@
 !_TAG_PARSER_VERSION!C	1.1	/current.age/
 !_TAG_PARSER_VERSION!C++	1.1	/current.age/
 !_TAG_PARSER_VERSION!Make	1.1	/current.age/
+!_TAG_PARSER_VERSION!PlistXML	0.0	/current.age/
+!_TAG_PARSER_VERSION!XML	0.0	/current.age/
+!_TAG_PARSER_VERSION!Yaml	0.0	/current.age/
 !_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
 !_TAG_PROC_CWD	/Users/noecrn/Documents/EPITA/ING1/PPEX-1/	//
 !_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
@@ -66,7 +75,15 @@
 !_TAG_ROLE_DESCRIPTION!C++!partition	imported	/imported with "imported ..."/
 !_TAG_ROLE_DESCRIPTION!Make!makefile	included	/included/
 !_TAG_ROLE_DESCRIPTION!Make!makefile	optional	/optionally included/
+!_TAG_ROLE_DESCRIPTION!Yaml!anchor	alias	/alias/
 CC	minimake/src/Makefile	/^CC=gcc$/;"	m
+CFBundleDevelopmentRegion	minimake/src/minimake.dSYM/Contents/Info.plist	/^		<key>CFBundleDevelopmentRegion<\/key>$/;"	k
+CFBundleIdentifier	minimake/src/minimake.dSYM/Contents/Info.plist	/^		<key>CFBundleIdentifier<\/key>$/;"	k
+CFBundleInfoDictionaryVersion	minimake/src/minimake.dSYM/Contents/Info.plist	/^		<key>CFBundleInfoDictionaryVersion<\/key>$/;"	k
+CFBundlePackageType	minimake/src/minimake.dSYM/Contents/Info.plist	/^		<key>CFBundlePackageType<\/key>$/;"	k
+CFBundleShortVersionString	minimake/src/minimake.dSYM/Contents/Info.plist	/^		<key>CFBundleShortVersionString<\/key>$/;"	k
+CFBundleSignature	minimake/src/minimake.dSYM/Contents/Info.plist	/^		<key>CFBundleSignature<\/key>$/;"	k
+CFBundleVersion	minimake/src/minimake.dSYM/Contents/Info.plist	/^		<key>CFBundleVersion<\/key>$/;"	k
 CFLAGS	minimake/src/Makefile	/^CFLAGS=-std=c99 -pedantic -Werror -Wall -Wextra -Wvla -g -fsanitize=address$/;"	m
 DESTROY_H	minimake/src/destroy.h	/^#define DESTROY_H$/;"	d
 DLIST_H	minimake/src/dlist/dlist.h	/^#define DLIST_H$/;"	d
@@ -87,6 +104,7 @@ aux_2	minimake/src/dlist/dlist_2.c	/^static char *aux_2(struct dlist *list)$/;"	
 aux_2	minimake/src/dlist/dlist_3.c	/^struct dlist *aux_2(struct dlist *list, struct dlist_item *cur, int index)$/;"	f	typeref:struct:dlist *
 clean	minimake/src/Makefile	/^clean:$/;"	t
 data	minimake/src/dlist/dlist.h	/^    void *data;$/;"	m	struct:dlist_item	typeref:typename:void *
+debug	minimake/src/Makefile	/^debug: $(SRCS)$/;"	t
 dependencies	minimake/src/minimake.h	/^    struct dlist *dependencies;$/;"	m	struct:rule	typeref:struct:dlist *
 destroy_dependencies	minimake/src/destroy.c	/^static void destroy_dependencies(struct dlist *data)$/;"	f	typeref:typename:void	file:
 destroy_minimake	minimake/src/destroy.c	/^void destroy_minimake(struct minimake *data)$/;"	f	typeref:typename:void
@@ -108,11 +126,14 @@ dlist_remove_at	minimake/src/dlist/dlist_2.c	/^char *dlist_remove_at(struct dlis
 dlist_reverse	minimake/src/dlist/dlist_3.c	/^void dlist_reverse(struct dlist *list)$/;"	f	typeref:typename:void
 dlist_size	minimake/src/dlist/dlist_1.c	/^size_t dlist_size(const struct dlist *list)$/;"	f	typeref:typename:size_t
 dlist_split_at	minimake/src/dlist/dlist_3.c	/^struct dlist *dlist_split_at(struct dlist *list, size_t index)$/;"	f	typeref:struct:dlist *
-expand	minimake/src/expansion.c	/^char *expand(char *str, struct minimake *data, struct rule *cur_rule)$/;"	f	typeref:typename:char *
-find_in_var	minimake/src/expansion.c	/^static char *find_in_var(char buf[], int size, struct minimake *data)$/;"	f	typeref:typename:char *	file:
+expand	minimake/src/expansion.c	/^char *expand(char *str, struct minimake *data)$/;"	f	typeref:typename:char *
+expand_immediate	minimake/src/expansion.c	/^char *expand_immediate(char *str, struct minimake *data)$/;"	f	typeref:typename:char *
+expand_recipe	minimake/src/expansion.c	/^char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)$/;"	f	typeref:typename:char *
+find_in_var	minimake/src/expansion.c	/^static char *find_in_var(char buf[], struct minimake *data)$/;"	f	typeref:typename:char *	file:
 foo	minimake/Makefile	/^foo: foo.o$/;"	t
 foo.o	minimake/Makefile	/^foo.o: foo.c$/;"	t
 get_dep_len	minimake/src/expansion.c	/^static int get_dep_len(struct rule *cur_rule)$/;"	f	typeref:typename:int	file:
+get_var_name	minimake/src/expansion.c	/^static char *get_var_name(const char *start, size_t *len)$/;"	f	typeref:typename:char *	file:
 head	minimake/src/dlist/dlist.h	/^    struct dlist_item *head;$/;"	m	struct:dlist	typeref:struct:dlist_item *
 index_null	minimake/src/dlist/dlist_3.c	/^static struct dlist *index_null(struct dlist *list)$/;"	f	typeref:struct:dlist *	file:
 main	minimake/src/minimake.c	/^int main(int argc, char *argv[])$/;"	f	typeref:typename:int
@@ -122,7 +143,7 @@ next	minimake/src/dlist/dlist.h	/^    struct dlist_item *next;$/;"	m	struct:dlis
 prev	minimake/src/dlist/dlist.h	/^    struct dlist_item *prev;$/;"	m	struct:dlist_item	typeref:struct:dlist_item *
 print_output	minimake/src/minimake.c	/^void print_output(struct minimake *data)$/;"	f	typeref:typename:void
 process_rule	minimake/src/parser.c	/^static void process_rule(char *line, struct rule *data, struct minimake *minimake)$/;"	f	typeref:typename:void	file:
-process_variable	minimake/src/parser.c	/^static void process_variable(char *line, struct variable *data)$/;"	f	typeref:typename:void	file:
+process_variable	minimake/src/parser.c	/^static void process_variable(char *line, struct variable *data, struct minimake *minimake)$/;"	f	typeref:typename:void	file:
 read_file	minimake/src/parser.c	/^struct minimake *read_file(char *argv)$/;"	f	typeref:struct:minimake *
 recipe	minimake/src/minimake.h	/^    struct dlist *recipe;$/;"	m	struct:rule	typeref:struct:dlist *
 recipe	minimake/src/parser.c	/^static void recipe(struct rule *last_rule, char *line)$/;"	f	typeref:typename:void	file:

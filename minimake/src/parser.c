@@ -67,13 +67,6 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
 
     // --- REMOVE SPACE ---
     trim_str(line);
-    data->target = strdup(line);
-    if (!data->target)
-    {
-        fprintf(stderr, "Target is missing");
-        destroy_struct(data);
-        exit(2);
-    }
 
     // --- REMOVE SPACE & COMMENT ---
     char *temp = strchr(dep, '#');
@@ -81,12 +74,15 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
         *temp = '\0';
     trim_str(dep);
 
+    // --- EXPAND TARGET AND DEPENDENCIES ---
+    data->target = expand_immediate(line, minimake);
+
     // --- SPLIT DEPENDENCIES ---
     char *delim = " \t\n";
     for (char *token = strtok(dep, delim); token; token = strtok(NULL, delim))
     {
         // --- EXPAND VARIABLES ---
-        char *exp = expand(token, minimake, data);
+        char *exp = expand_immediate(token, minimake);
         if (!exp)
             exp = strdup("");
 
@@ -104,10 +100,11 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
             }
             dlist_push_back(data->dependencies, temp);
         }
+        free(exp);
     }
 }
 
-static void process_variable(char *line, struct variable *data)
+static void process_variable(char *line, struct variable *data, struct minimake *minimake)
 {
     // --- END THE LINE CORRECTLY ---
     line[strcspn(line, "\n")] = '\0';
@@ -119,68 +116,19 @@ static void process_variable(char *line, struct variable *data)
 
     // --- REMOVE SPACE ---
     trim_str(line);
-    data->name = strdup(line);
-    if (!data->name)
-    {
-        fprintf(stderr, "Name is missing");
-        //destroy_struct(data);
-        exit(2);
-    }
 
     // --- REMOVE SPACE & COMMENT ---
     char *temp = strchr(var, '#');
     if (temp)
         *temp = '\0';
     trim_str(var);
-    data->value = strdup(var);
-    if (!data->value)
-    {
-        fprintf(stderr, "Value is missing");
-        //destroy_struct(data);
-        exit(2);
-    }
+
+    // --- EXPAND NAME AND VALUE ---
+    data->name = expand_immediate(line, minimake);
+    data->value = expand_immediate(var, minimake);
 }
 
-static char *process_recipe(char *line, struct minimake *minimake, struct rule *last_rule)
-{
-    if (!strchr(line, '@') && !strchr(line, '^') && !strchr(line, '<'))
-    {
-        fprintf(stderr, "Invalid simple variable");
-        exit(2);
-    }
-
-    char *res = malloc(strlen(line) - 2);
-    res[0] = '\0';
-
-    char buf[3];
-
-    // --- ITERATE THROUGH RECIPE ---
-    int i = 0;
-    for (char *start = strchr(line, '$'); *start != '\0' && i < 2; start++)
-    {
-        buf[i] = *start;
-        i++;
-    }
-    buf[i] = '\0';
-
-    // --- EXPAND THE VARIABLE ---
-    expand(buf, minimake, last_rule);
-
-    while (cur != NULL)
-    {
-        // --- ADD SPACE AT THE BEGINNING ---
-        if (res[0] != '\0')
-            strcat(res, " ");
-
-        // --- ADD DEPENDENCIE ---
-        strcat(res, cur->data);
-        cur = cur->next;
-    }
-
-    return res;
-}
-
-static void recipe(struct minimake *minimake, struct rule *last_rule, char *line)
+static void recipe(struct rule *last_rule, char *line)
 {
     if (!last_rule)
     {
@@ -195,9 +143,6 @@ static void recipe(struct minimake *minimake, struct rule *last_rule, char *line
     trim_str_recipe(line);
 
     // --- ADD TO MINIMAKE ---
-    if (strchr(line, '$'))
-        line = process_recipe(line, minimake, last_rule);
-
     dlist_push_back(last_rule->recipe, strdup(line));
 }
 
@@ -231,7 +176,7 @@ static struct rule *variable(char *line, struct minimake *data)
     }
 
     // --- PROCESS NEW RULE & ADD IT TO MINIMAKE ---
-    process_variable(line, new_var);
+    process_variable(line, new_var, data);
     dlist_push_back(data->variable, new_var);
 
     return NULL;
@@ -273,7 +218,7 @@ struct minimake *read_file(char *argv)
         // --- CHECK IF RECIPE ---
         else if (line[0] == '\t')
         {
-            recipe(data, last_rule, line);
+            recipe(last_rule, line);
         }
         // --- CHECK IF RULE ---
         else if (strchr(line, ':'))

@@ -33,7 +33,7 @@ static int get_dep_len(struct rule *cur_rule)
     return total_len;
 }
 
-static char *find_in_var(char buf[], int size, struct minimake *data)
+static char *find_in_var(char buf[], struct minimake *data)
 {
     if (!data->variable)
         return "";
@@ -44,12 +44,8 @@ static char *find_in_var(char buf[], int size, struct minimake *data)
     {
         struct variable *temp_var = cur->data;
 
-        // --- LOOK FOR SINGLE VARIABLE ---
-        if (size == 2)
-        {
-        }
         // --- LOOK FOR GENERAL VARIABLE ---
-        else if (strcmp(temp_var->name, buf))
+        if (strcmp(temp_var->name, buf) == 0)
         {
             return temp_var->value;
         }
@@ -60,67 +56,160 @@ static char *find_in_var(char buf[], int size, struct minimake *data)
     return "";
 }
 
-char *expand(char *str, struct minimake *data, struct rule *cur_rule)
+static char *get_var_name(const char *start, size_t *len)
+{
+    *len = 0;
+    const char *end = NULL;
+
+    if (start[1] == '(')
+    {
+        // --- INVALID CASE NO CLOSING BRACKET ---
+        end = strchr(start+2, ')');
+        if (!end)
+            return NULL;
+
+        size_t name_len = end - (start+2);
+        *len = name_len + 3;
+        char *name = malloc(name_len + 1);
+        if (!name)
+            return NULL;
+
+        strncpy(name, start + 2, name_len);
+        name[name_len] = '\0';
+
+        return name;
+    }
+
+    return NULL;
+}
+
+char *expand_immediate(char *str, struct minimake *data)
+{
+    if (!str)
+        return strdup("");
+
+    char res[2048];
+    res[0] = '\0';
+    int i = 0;
+    int res_i = 0;
+
+    // --- PARSE THE VARIABLE ---
+    while (str[i] != '\0')
+    {
+        if (str[i] == '$')
+        {
+            // --- SKIP $$ ---
+            if (str[i+1] == '$')
+            {
+                res[res_i] = '$';
+                res_i++;
+                i += 2;
+            }
+            // --- CLASSIQUE CASE: $(VAR) ---
+            else if (str[i+1] == '(')
+            {
+                size_t len = 0;
+                char *var_name = get_var_name(&str[i], &len);
+
+                if (var_name)
+                {
+                    // --- GET VALUE OF VARIABLE ---
+                    char *value = find_in_var(var_name, data);
+
+                    // --- RECURSIVE CALL IF VAR CONTAIN VAR ---
+                    char *expanded_value = expand_immediate(value, data);
+
+                    // --- COPY EXPANDED VALUE IN RES ---
+                    if (expanded_value)
+                    {
+                        strcat(res, expanded_value);
+                        res_i += strlen(expanded_value);
+                        free(expanded_value);
+                    }
+
+                    // --- JUMP $(VAR) LENGTH ---
+                    free(var_name);
+                    i += len;
+                }
+                // --- INVALID CASE NO CLOSING BRACKET ---
+                else
+                {
+                    res[res_i]  = str[i];
+                    res_i++;
+                    i++;
+                }
+            }
+            // --- CASE &V, &{} OR $ ---
+            else
+            {
+                res[res_i]  = str[i];
+                res_i++;
+                i++;
+            }
+        }
+        // --- NORMAL CASE ---
+        else
+        {
+            res[res_i]  = str[i];
+            res_i++;
+            i++;
+        }
+    }
+
+    res[res_i] = '\0';
+    return strdup(res);
+}
+
+char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)
+{
+    char *start = strchr(str, '$');
+    if (!start)
+        return str;
+
+    // --- IF $@ RETURN TARGET ---
+    if (*(start+1) == '@')
+    {
+        return cur_rule->target;
+    }
+    // --- IF $< RETURN THE FIRST DEPENDENCIE ---
+    else if (*(start+1) == '<')
+    {
+        if (cur_rule->dependencies->head != NULL)
+            return "";
+
+        return cur_rule->dependencies->head->data;
+    }
+    // --- IF $^ RETURN ALL DEPENDENCIES ---
+    else if (*(start+1) == '^')
+    {
+        char *res = malloc(get_dep_len(cur_rule) + 1);
+        res[0] = '\0';
+
+        // --- ITERATE THROUGH DEPENDENCIES ---
+        struct dlist_item *cur = cur_rule->dependencies->head;
+        while (cur != NULL)
+        {
+            // --- ADD SPACE AT THE BEGINNING ---
+            if (res[0] != '\0')
+                strcat(res, " ");
+
+            // --- ADD DEPENDENCIE ---
+            strcat(res, cur->data);
+            cur = cur->next;
+        }
+
+        return res;
+    }
+
+    return expand_immediate(str, data);
+}
+
+char *expand(char *str, struct minimake *data)
 {
     if (!data || strchr(str, '$') == NULL)
         return str;
 
-    char *res = "";
-
-    char *start = strchr(str, '$');
-    if (*(start+1) == '(')
-    {
-        // --- PARSE THE VARIABLE ---
-        char buf[1024];
-        int i = 1;
-        while (*(start + i) != ')')
-        {
-            if (*(start + i) == '(')
-              buf[i-1] = *(start + i);
-            i++;
-        }
-        buf[i-1] = '\0';
-
-        // --- FIND THE VARIABLE ---
-        res = find_in_var(buf, i, data);
-    }
-    else
-    {
-        // --- IF $@ RETURN TARGET ---
-        if (*(start+2) == '@')
-        {
-            return cur_rule->target;
-        }
-        // --- IF $< RETURN THE FIRST DEPENDENCIE ---
-        else if (*(start+2) == '<')
-        {
-            if (cur_rule->dependencies->head != NULL)
-                return "";
-
-            return cur_rule->dependencies->head->data;
-        }
-        // --- IF $^ RETURN ALL DEPENDENCIES ---
-        else if (*(start+2) == '^')
-        {
-            char *res = malloc(get_dep_len(cur_rule) + 1);
-            res[0] = '\0';
-
-            // --- ITERATE THROUGH DEPENDENCIES ---
-            struct dlist_item *cur = cur_rule->dependencies->head;
-            while (cur != NULL)
-            {
-                // --- ADD SPACE AT THE BEGINNING ---
-                if (res[0] != '\0')
-                    strcat(res, " ");
-
-                // --- ADD DEPENDENCIE ---
-                strcat(res, cur->data);
-                cur = cur->next;
-            }
-
-            return res;
-        }
-    }
+    char *res = expand_immediate(str, data);
 
     return res;
 }

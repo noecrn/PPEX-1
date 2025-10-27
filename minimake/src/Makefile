@@ -9,6 +9,10 @@ OBJS=$(SRCS:.c=.o)
 all: $(OBJS)
 	$(CC) $(LDFLAGS) $(OBJS) -o minimake
 
+debug: $(SRCS)
+	$(CC) -arch x86_64 -std=c99 -Wall -Wextra -O0 -g -gdwarf-4 -fno-omit-frame-pointer \
+		-Wno-deprecated-non-prototype -o minimake $(SRCS)
+
 clean:
 	$(RM) minimake .DS_store $(OBJS)
 
