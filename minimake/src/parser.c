@@ -141,7 +141,46 @@ static void process_variable(char *line, struct variable *data)
     }
 }
 
-static void recipe(struct rule *last_rule, char *line)
+static char *process_recipe(char *line, struct minimake *minimake, struct rule *last_rule)
+{
+    if (!strchr(line, '@') && !strchr(line, '^') && !strchr(line, '<'))
+    {
+        fprintf(stderr, "Invalid simple variable");
+        exit(2);
+    }
+
+    char *res = malloc(strlen(line) - 2);
+    res[0] = '\0';
+
+    char buf[3];
+
+    // --- ITERATE THROUGH RECIPE ---
+    int i = 0;
+    for (char *start = strchr(line, '$'); *start != '\0' && i < 2; start++)
+    {
+        buf[i] = *start;
+        i++;
+    }
+    buf[i] = '\0';
+
+    // --- EXPAND THE VARIABLE ---
+    expand(buf, minimake, last_rule);
+
+    while (cur != NULL)
+    {
+        // --- ADD SPACE AT THE BEGINNING ---
+        if (res[0] != '\0')
+            strcat(res, " ");
+
+        // --- ADD DEPENDENCIE ---
+        strcat(res, cur->data);
+        cur = cur->next;
+    }
+
+    return res;
+}
+
+static void recipe(struct minimake *minimake, struct rule *last_rule, char *line)
 {
     if (!last_rule)
     {
@@ -156,6 +195,9 @@ static void recipe(struct rule *last_rule, char *line)
     trim_str_recipe(line);
 
     // --- ADD TO MINIMAKE ---
+    if (strchr(line, '$'))
+        line = process_recipe(line, minimake, last_rule);
+
     dlist_push_back(last_rule->recipe, strdup(line));
 }
 
@@ -231,7 +273,7 @@ struct minimake *read_file(char *argv)
         // --- CHECK IF RECIPE ---
         else if (line[0] == '\t')
         {
-            recipe(last_rule, line);
+            recipe(data, last_rule, line);
         }
         // --- CHECK IF RULE ---
         else if (strchr(line, ':'))
