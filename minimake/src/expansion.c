@@ -88,10 +88,10 @@ char *expand_immediate(char *str, struct minimake *data)
     if (!str)
         return strdup("");
 
-    char res[2048];
+    char res[4096];
+    int res_i = 0;
     res[0] = '\0';
     int i = 0;
-    int res_i = 0;
 
     // --- PARSE THE VARIABLE ---
     while (str[i] != '\0')
@@ -122,7 +122,7 @@ char *expand_immediate(char *str, struct minimake *data)
                     // --- COPY EXPANDED VALUE IN RES ---
                     if (expanded_value)
                     {
-                        strcat(res, expanded_value);
+                        strcpy(res + res_i, expanded_value);
                         res_i += strlen(expanded_value);
                         free(expanded_value);
                     }
@@ -134,7 +134,7 @@ char *expand_immediate(char *str, struct minimake *data)
                 // --- INVALID CASE NO CLOSING BRACKET ---
                 else
                 {
-                    res[res_i]  = str[i];
+                    res[res_i] = str[i];
                     res_i++;
                     i++;
                 }
@@ -142,7 +142,7 @@ char *expand_immediate(char *str, struct minimake *data)
             // --- CASE &V, &{} OR $ ---
             else
             {
-                res[res_i]  = str[i];
+                res[res_i] = str[i];
                 res_i++;
                 i++;
             }
@@ -150,13 +150,13 @@ char *expand_immediate(char *str, struct minimake *data)
         // --- NORMAL CASE ---
         else
         {
-            res[res_i]  = str[i];
+            res[res_i] = str[i];
             res_i++;
             i++;
         }
     }
 
-    res[res_i] = '\0';
+    strcat(res, "\0");
     return strdup(res);
 }
 
@@ -174,7 +174,7 @@ char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)
     // --- IF $< RETURN THE FIRST DEPENDENCIE ---
     else if (*(start+1) == '<')
     {
-        if (cur_rule->dependencies->head != NULL)
+        if (cur_rule->dependencies->head == NULL)
             return "";
 
         return cur_rule->dependencies->head->data;

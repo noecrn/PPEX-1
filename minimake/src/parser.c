@@ -86,6 +86,7 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
         if (!exp)
             exp = strdup("");
 
+        // --- GO THROUGH ?? ---
         for (char *sub = strtok(exp, delim); sub; sub = strtok(NULL, delim))
         {
             if (*sub == '\0')
@@ -123,9 +124,9 @@ static void process_variable(char *line, struct variable *data, struct minimake 
         *temp = '\0';
     trim_str(var);
 
-    // --- EXPAND NAME AND VALUE ---
+    // --- EXPAND NAME ONLY ---
     data->name = expand_immediate(line, minimake);
-    data->value = expand_immediate(var, minimake);
+    data->value = strdup(var);
 }
 
 static void recipe(struct rule *last_rule, char *line)

@@ -3,6 +3,7 @@
 #include "parser.h"
 #include "dlist/dlist.h"
 #include "destroy.h"
+#include "executor.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -89,6 +90,7 @@ int main(int argc, char *argv[])
                 exit(2);
             }
 
+            // --- UPDATE FILEPATH ---
             path = argv[i+1];
             i++;
         }
@@ -102,16 +104,24 @@ int main(int argc, char *argv[])
         }
     }
 
+    // --- PRINT HELP MESSAGE ---
     if (flag_h)
     {
         printf("[HELP MESSAGE]\n");
         return 0;
     }
 
+    // --- LOAD PARSED MAKEFILE ---
     struct minimake *data = read_file(path);
+
+    // --- PRETTY PRINT ---
     if (flag_p)
         print_output(data);
+    // --- EXECUTE ALL MAKEFILE
+    else
+        executor(data);
 
+    // --- FREE ALL STRUCT ---
     destroy_minimake(data);
     return 0;
 }

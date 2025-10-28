@@ -1,0 +1,6 @@
+all:
+	echo $(VAR)
+
+VAR=$(FOO)
+$(FOO)=Hello, World!
+
