@@ -8,13 +8,58 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <err.h>
+#include <stdbool.h>
 
-static void trim_str_recipe(char line[])
+static char *remove_mid_space(char *str)
+{
+    size_t len = strlen(str);
+    char *res = malloc(len + 1); 
+    if (!res)
+        errx(2, "Malloc failed");
+    res[0] = '\0';
+    int res_i = 0;
+    int i = 0;
+    bool flag = false;
+
+    while (str[i] != '\0')
+    {
+        // --- IF NO SPACE, JUST COPY CHAR ---
+        if (isspace(str[i]))
+        {
+            if (!flag)
+            {
+                res[res_i] = ' ';
+                res_i++;
+                flag = true;
+            }
+        }
+        // --- SKIP SPACES ---
+        else
+        {
+            res[res_i] = str[i];
+            res_i++;
+            flag = false;
+        }
+        i++;
+    }
+
+    res[res_i] = '\0';
+    return res;
+}
+
+static void trim_str(char *line)
 {
     // --- GET LENGTH ---
     size_t len = strlen(line);
     if (len == 0)
         return;
+
+    // --- REMOVE SPACES AT THE END ---
+    char *end = line + len - 1;
+    while (end >= line && isspace(*end))
+        end--;
+    *(end + 1) = '\0';
 
     // --- REMOVE SPACES AT THE BEGINNING ---
     char *start = line;
@@ -27,9 +72,14 @@ static void trim_str_recipe(char line[])
         size_t new_size = strlen(start) + 1;
         memmove(line, start, new_size);
     }
+
+    // --- REMOVE MID SPACE IN THE STRING ---
+    char *compressed_line = remove_mid_space(line);
+    strcpy(line, compressed_line);
+    free(compressed_line);
 }
 
-static void trim_str(char *line)
+static void trim_str_end(char *line)
 {
     // --- GET LENGTH ---
     size_t len = strlen(line);
@@ -79,15 +129,17 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
 
     // --- SPLIT DEPENDENCIES ---
     char *delim = " \t\n";
-    for (char *token = strtok(dep, delim); token; token = strtok(NULL, delim))
+    char *saveptr;
+    for (char *token = strtok_r(dep, delim, &saveptr); token; token = strtok_r(NULL, delim, &saveptr))
     {
         // --- EXPAND VARIABLES ---
         char *exp = expand_immediate(token, minimake);
         if (!exp)
             exp = strdup("");
 
-        // --- GO THROUGH ?? ---
-        for (char *sub = strtok(exp, delim); sub; sub = strtok(NULL, delim))
+        // --- IF MULTIPLE DEPENDENCIES ---
+        char *saveptr_sub;
+        for (char *sub = strtok_r(exp, delim, &saveptr_sub); sub; sub = strtok_r(NULL, delim, &saveptr_sub))
         {
             if (*sub == '\0')
                 continue;
@@ -96,8 +148,7 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
             if (!temp)
             {
                 free(exp);
-                fprintf(stderr, "Strdup failed");
-                exit(2);
+                errx(2, "Strdup failed");
             }
             dlist_push_back(data->dependencies, temp);
         }
@@ -119,10 +170,10 @@ static void process_variable(char *line, struct variable *data, struct minimake 
     trim_str(line);
 
     // --- REMOVE SPACE & COMMENT ---
+    trim_str(var);
     char *temp = strchr(var, '#');
     if (temp)
         *temp = '\0';
-    trim_str(var);
 
     // --- EXPAND NAME ONLY ---
     data->name = expand_immediate(line, minimake);
@@ -141,7 +192,7 @@ static void recipe(struct rule *last_rule, char *line)
     line[strcspn(line, "\n")] = '\0';
 
     // --- REMOVE SPACE AT THE BEGINNING ---
-    trim_str_recipe(line);
+    trim_str_end(line);
 
     // --- ADD TO MINIMAKE ---
     dlist_push_back(last_rule->recipe, strdup(line));
@@ -229,7 +280,7 @@ struct minimake *read_file(char *argv)
         // --- CHECK IF VARIABLE ---
         else if (strchr(line, '='))
         {
-            last_rule = variable(line, data);
+            variable(line, data);
         }
     }
 

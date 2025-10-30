@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "dlist/dlist.h"
 #include "minimake.h"
+#include "expansion.h"
 
 #include <assert.h>
 #include <ctype.h>
@@ -11,27 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-static int get_dep_len(struct rule *cur_rule)
-{
-    int total_len = 0;
-    int count = 0;
-
-    // --- COUNT EACH DEPENDENCIES LENGTH ---
-    struct dlist_item *cur = cur_rule->dependencies->head;
-    while (cur != NULL)
-    {
-        total_len += strlen(cur->data);
-        cur = cur->next;
-        count++;
-    }
-
-    // --- ADD SPACE COUNT ---
-    if (count > 0)
-        total_len += count - 1;
-
-    return total_len;
-}
 
 static char *find_in_var(char buf[], struct minimake *data)
 {
@@ -124,11 +104,11 @@ char *expand_immediate(char *str, struct minimake *data)
                     {
                         strcpy(res + res_i, expanded_value);
                         res_i += strlen(expanded_value);
-                        free(expanded_value);
+                        //free(expanded_value);
                     }
 
                     // --- JUMP $(VAR) LENGTH ---
-                    free(var_name);
+                    //free(var_name);
                     i += len;
                 }
                 // --- INVALID CASE NO CLOSING BRACKET ---
@@ -156,52 +136,163 @@ char *expand_immediate(char *str, struct minimake *data)
         }
     }
 
-    strcat(res, "\0");
+    res[res_i] = '\0';
     return strdup(res);
+}
+
+static char *get_var_name_recipe(const char *start, size_t *len)
+{
+    *len = 0;
+    const char *end = NULL;
+    char open_char = start[1];
+    char close_char = (open_char == '(') ? ')' : '}';
+
+    // --- FIND THE CLOSING BRACKET ---
+    end = strchr(start + 2, close_char);
+    if (!end)
+        return NULL;
+
+    // --- MALLOC AND COPY THE NAME ---
+    size_t name_len = end - (start + 2);
+    *len = name_len + 3;
+    char *name = malloc(name_len + 1);
+    if (!name)
+        return NULL;
+
+    strncpy(name, start + 2, name_len);
+    name[name_len] = '\0';
+
+    return name;
 }
 
 char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)
 {
-    char *start = strchr(str, '$');
-    if (!start)
-        return str;
+    if (!str)
+        return strdup("");
 
-    // --- IF $@ RETURN TARGET ---
-    if (*(start+1) == '@')
-    {
-        return cur_rule->target;
-    }
-    // --- IF $< RETURN THE FIRST DEPENDENCIE ---
-    else if (*(start+1) == '<')
-    {
-        if (cur_rule->dependencies->head == NULL)
-            return "";
+    // --- CHECK IF THERE IS VARIABLE ---
+    if (!strchr(str, '$'))
+        return strdup(str);
 
-        return cur_rule->dependencies->head->data;
-    }
-    // --- IF $^ RETURN ALL DEPENDENCIES ---
-    else if (*(start+1) == '^')
-    {
-        char *res = malloc(get_dep_len(cur_rule) + 1);
-        res[0] = '\0';
+    char res[4096];
+    res[0] = '\0';
+    int res_i = 0;
+    int i = 0;
 
-        // --- ITERATE THROUGH DEPENDENCIES ---
-        struct dlist_item *cur = cur_rule->dependencies->head;
-        while (cur != NULL)
+    while (str[i] != '\0')
+    {
+        // --- IF NO VARIABLE, JUST COPY CHAR ---
+        if (str[i] != '$')
         {
-            // --- ADD SPACE AT THE BEGINNING ---
-            if (res[0] != '\0')
-                strcat(res, " ");
-
-            // --- ADD DEPENDENCIE ---
-            strcat(res, cur->data);
-            cur = cur->next;
+            res[res_i] = str[i];
+            res_i++;
+            i++;
         }
+        // --- HANDLE $$ ---
+        else if (str[i+1] == '$')
+        {
+            res[res_i] = '$';
+            res_i++;
+            i += 2;
+        }
+        else
+        {
+            // --- IF $@ ADD TARGET ---
+            if (str[i+1] == '@')
+            {
+                strcpy(res + res_i, cur_rule->target);
+                res_i += strlen(cur_rule->target);
+                i += 2;
+            }
+            // --- IF $< ADD THE FIRST DEPENDENCIE ---
+            else if (str[i+1] == '<')
+            {
+                if (cur_rule->dependencies->head != NULL)
+                {
+                    char *first_dep = cur_rule->dependencies->head->data;
+                    strcpy(res + res_i, first_dep);
+                    res_i += strlen(first_dep);
+                }
+                i += 2;
+            }
+            // --- IF $^ RETURN ALL DEPENDENCIES ---
+            else if (str[i+1] == '^')
+            {
+                struct dlist_item *cur = cur_rule->dependencies->head;
+                while (cur != NULL)
+                {
+                    // Add space between dependencies
+                    if (cur != cur_rule->dependencies->head)
+                    {
+                        res[res_i] = ' ';
+                        res_i++;
+                    }
+                    char *dep_data = cur->data;
+                    strcpy(res + res_i, dep_data);
+                    res_i += strlen(dep_data);
+                    cur = cur->next;
+                }
+                i += 2;
+            }
+            // --- HANDLE $(VAR) OR ${VAR} ---
+            else if (str[i + 1] == '(' || str[i + 1] == '{')
+            {
+                size_t len = 0;
+                char *var_name = get_var_name_recipe(&str[i], &len);
 
-        return res;
+                if (var_name)
+                {
+                    // --- GET VALUE OF VARIABLE ---
+                    char *value = find_in_var(var_name, data);
+
+                    // --- RECURSIVE CALL IF VAR CONTAIN VAR ---
+                    char *expanded_value = expand_immediate(value, data);
+
+                    // --- COPY EXPANDED VALUE IN RES ---
+                    if (expanded_value)
+                    {
+                        strcpy(res + res_i, expanded_value);
+                        res_i += strlen(expanded_value);
+                        //free(expanded_value);
+                    }
+
+                    // --- JUMP $(VAR) LENGTH ---
+                    //free(var_name);
+                    i += len;
+                }
+                // --- INVALID CASE NO CLOSING BRACKET ---
+                else
+                {
+                    res[res_i] = '$';
+                    res_i++;
+                    i++;
+                }
+            }
+            else if (isalnum(str[i + 1]))
+            {
+                char var_name[2] = { str[i + 1], '\0' };
+                char *value = find_in_var(var_name, data);
+                char *expanded_value = expand_immediate(value, data);
+
+                if (expanded_value)
+                {
+                    strcpy(res + res_i, expanded_value);
+                    res_i += strlen(expanded_value);
+                    //free(expanded_value);
+                }
+                i += 2;
+            }
+            else
+            {
+                res[res_i] = '$';
+                res_i++;
+                i++;
+            }
+        }
     }
 
-    return expand_immediate(str, data);
+    res[res_i] = '\0';
+    return strdup(res);
 }
 
 char *expand(char *str, struct minimake *data)

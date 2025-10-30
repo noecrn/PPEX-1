@@ -1,0 +1,6 @@
+{
+	"files.associations": {
+		"minimake.h": "c",
+		"expansion.h": "c"
+	}
+}

@@ -9,15 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-void destroy_struct(struct rule *rule)
-{
-    if (!rule)
-        return;
-
-    dlist_clear(rule->dependencies);
-    free(rule);
-}
+#include <err.h>
 
 void print_output(struct minimake *data)
 {
@@ -41,7 +33,7 @@ void print_output(struct minimake *data)
     {
         // --- PRINT TARGET ---
         struct rule *rule = cur_rule->data;
-        printf("(%s):", rule->target);
+        printf("(%s): ", rule->target);
 
         // --- PRINT DEPENDENCIES ---
         if (rule->dependencies)
@@ -50,7 +42,7 @@ void print_output(struct minimake *data)
             while (cur_dep != NULL)
             {
                 char *temp = cur_dep->data;
-                printf(" [%s]", temp);
+                printf("[%s] ", temp);
                 cur_dep = cur_dep->next;
             }
         }
@@ -86,8 +78,7 @@ int main(int argc, char *argv[])
         {
             if (i >= argc-1)
             {
-                fprintf(stderr, "Invalid argument, you must provide a path after -f");
-                exit(2);
+                errx(2, "Invalid argument, you must provide a path after -f");
             }
 
             // --- UPDATE FILEPATH ---
@@ -119,7 +110,11 @@ int main(int argc, char *argv[])
         print_output(data);
     // --- EXECUTE ALL MAKEFILE
     else
-        executor(data);
+        if (executor(argc, argv, data) == 2)
+        {
+            destroy_minimake(data);
+            return 2;
+        }  
 
     // --- FREE ALL STRUCT ---
     destroy_minimake(data);

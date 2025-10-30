@@ -1,14 +1,17 @@
 CC=gcc
 CFLAGS=-std=c99 -pedantic -Werror -Wall -Wextra -Wvla
-SRCS=minimake.c parser.c expansion.c destroy.c dlist/dlist_1.c dlist/dlist_2.c dlist/dlist_3.c
+SRCS=src/minimake.c src/parser.c src/expansion.c src/destroy.c src/executor.c src/dlist/dlist_1.c src/dlist/dlist_2.c src/dlist/dlist_3.c
 OBJS=$(SRCS:.c=.o)
 
-.PHONY: clean all
+.PHONY: clean minimake check
+
+all: minimake
 
 minimake: $(OBJS)
-	$(CC) $(LDFLAGS) $(OBJS) -o minimake
+	$(CC) $(CFLAGS) $(OBJS) -o src/minimake
 
-check:
+check: minimake
+	./tests/test_suite.sh
 
 clean:
-	$(RM) minimake .DS_store $(OBJS)
+	$(RM) src/minimake .DS_store $(OBJS)
