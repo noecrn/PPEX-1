@@ -8,8 +8,10 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 rm -f "$my_out"
+rm -f "$ref_out"
 
-"../../src/minimake" -p -f Makefile > "$my_out"
+make -f Makefile > "$ref_out"
+"../../src/minimake" -f Makefile > "$my_out"
 exit_code=$?
 
 # --- CHECK EXIT CODE ---

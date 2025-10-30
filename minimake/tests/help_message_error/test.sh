@@ -2,14 +2,14 @@
 
 my_out="my_out"
 ref_out="ref_out"
-expected_code=0
+expected_code=2
 
 RED='\033[0;31m'
 NC='\033[0m'
 
 rm -f "$my_out"
 
-"../../src/minimake" -p -f Makefile > "$my_out"
+"../../src/minimake" "" -h all -f Makefile > "$my_out"
 exit_code=$?
 
 # --- CHECK EXIT CODE ---

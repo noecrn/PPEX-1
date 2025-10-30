@@ -74,11 +74,14 @@ int main(int argc, char *argv[])
     // --- CHECK COMMAND LINE OPTIONS ---
     for (int i = 1; i < argc; i++)
     {
+        if (strcmp(argv[i], "") == 0)
+            errx(2, "*** empty string invalid as argument. Stop.");
+
         if (strcmp(argv[i], "-f") == 0)
         {
             if (i >= argc-1)
             {
-                errx(2, "Invalid argument, you must provide a path after -f");
+                errx(2, "Invalid argument, you must provide a path after -f. Stop.");
             }
 
             // --- UPDATE FILEPATH ---
@@ -95,26 +98,32 @@ int main(int argc, char *argv[])
         }
     }
 
+    // --- LOAD PARSED MAKEFILE ---
+    struct minimake *data = read_file(path);
+    if (!data)
+        return 2;
+
     // --- PRINT HELP MESSAGE ---
     if (flag_h)
     {
         printf("[HELP MESSAGE]\n");
+        destroy_minimake(data);
         return 0;
     }
-
-    // --- LOAD PARSED MAKEFILE ---
-    struct minimake *data = read_file(path);
 
     // --- PRETTY PRINT ---
     if (flag_p)
         print_output(data);
+        
     // --- EXECUTE ALL MAKEFILE
     else
+    {
         if (executor(argc, argv, data) == 2)
         {
             destroy_minimake(data);
             return 2;
-        }  
+        }
+    }
 
     // --- FREE ALL STRUCT ---
     destroy_minimake(data);

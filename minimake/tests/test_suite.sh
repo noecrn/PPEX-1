@@ -48,8 +48,8 @@ func_dir () {
 
 cd tests
 func_dir
+echo -e ""
 echo -e $YEL "Passed $passed_tests/$total_tests tests" $NC
 cd ..
-echo -e ""
 
 exit 0;

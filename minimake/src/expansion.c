@@ -104,19 +104,18 @@ char *expand_immediate(char *str, struct minimake *data)
                     {
                         strcpy(res + res_i, expanded_value);
                         res_i += strlen(expanded_value);
-                        //free(expanded_value);
+                        free(expanded_value);
                     }
 
                     // --- JUMP $(VAR) LENGTH ---
-                    //free(var_name);
+                    free(var_name);
                     i += len;
                 }
                 // --- INVALID CASE NO CLOSING BRACKET ---
                 else
                 {
-                    res[res_i] = str[i];
-                    res_i++;
-                    i++;
+                    fprintf(stderr, "minimake: No closing bracket. Stop\n");
+                    exit(2);
                 }
             }
             // --- CASE &V, &{} OR $ ---
@@ -253,19 +252,18 @@ char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)
                     {
                         strcpy(res + res_i, expanded_value);
                         res_i += strlen(expanded_value);
-                        //free(expanded_value);
+                        free(expanded_value);
                     }
 
                     // --- JUMP $(VAR) LENGTH ---
-                    //free(var_name);
+                    free(var_name);
                     i += len;
                 }
                 // --- INVALID CASE NO CLOSING BRACKET ---
                 else
                 {
-                    res[res_i] = '$';
-                    res_i++;
-                    i++;
+                    fprintf(stderr, "minimake: No closing bracket. Stop\n");
+                    exit(2);
                 }
             }
             else if (isalnum(str[i + 1]))
@@ -278,7 +276,7 @@ char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)
                 {
                     strcpy(res + res_i, expanded_value);
                     res_i += strlen(expanded_value);
-                    //free(expanded_value);
+                    free(expanded_value);
                 }
                 i += 2;
             }

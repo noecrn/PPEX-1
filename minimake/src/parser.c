@@ -16,7 +16,7 @@ static char *remove_mid_space(char *str)
     size_t len = strlen(str);
     char *res = malloc(len + 1); 
     if (!res)
-        errx(2, "Malloc failed");
+        errx(2, "Malloc failed. Stop.");
     res[0] = '\0';
     int res_i = 0;
     int i = 0;
@@ -115,9 +115,6 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
     *dep = '\0';
     dep++;
 
-    // --- REMOVE SPACE ---
-    trim_str(line);
-
     // --- REMOVE SPACE & COMMENT ---
     char *temp = strchr(dep, '#');
     if (temp)
@@ -148,7 +145,7 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
             if (!temp)
             {
                 free(exp);
-                errx(2, "Strdup failed");
+                errx(2, "Strdup failed. Stop.");
             }
             dlist_push_back(data->dependencies, temp);
         }
@@ -170,21 +167,24 @@ static void process_variable(char *line, struct variable *data, struct minimake 
     trim_str(line);
 
     // --- REMOVE SPACE & COMMENT ---
-    trim_str(var);
     char *temp = strchr(var, '#');
     if (temp)
         *temp = '\0';
 
+    char *start = var;
+    while (isspace(*start))
+        start++;
+
     // --- EXPAND NAME ONLY ---
     data->name = expand_immediate(line, minimake);
-    data->value = strdup(var);
+    data->value = strdup(start);
 }
 
 static void recipe(struct rule *last_rule, char *line)
 {
     if (!last_rule)
     {
-        fprintf(stderr, "Recipe outside of rule");
+        fprintf(stderr, "minimake: Recipe outside of rule. Stop\n");
         exit(2);
     }
 
@@ -204,7 +204,7 @@ static struct rule *rule(char *line, struct minimake *data)
     struct rule *new_rule = malloc(sizeof(struct rule));
     if (!new_rule)
     {
-        fprintf(stderr, "Malloc error");
+        fprintf(stderr, "minimake: Malloc error. Stop\n");
         exit(2);
     }
     new_rule->dependencies = dlist_init();
@@ -223,7 +223,7 @@ static struct rule *variable(char *line, struct minimake *data)
     struct variable *new_var = malloc(sizeof(struct variable));
     if (!new_var)
     {
-        fprintf(stderr, "Malloc error");
+        fprintf(stderr, "minimake: Malloc error.Stop\n");
         exit(2);
     }
 
@@ -240,8 +240,8 @@ struct minimake *read_file(char *argv)
     FILE *file = fopen(argv, "r");
     if (file == NULL)
     {
-        fprintf(stderr, "No Makefile was found");
-        exit(2);
+        fprintf(stderr, "minimake: No Makefile was found\n");
+        return NULL;
     }
 
     char *line = NULL;
@@ -251,7 +251,7 @@ struct minimake *read_file(char *argv)
     struct minimake *data = malloc(sizeof(struct minimake));
     if (!data)
     {
-        fprintf(stderr, "Malloc error");
+        fprintf(stderr, "minimake: Malloc error.Stop\n");
         free(line);
         exit(2);
     }

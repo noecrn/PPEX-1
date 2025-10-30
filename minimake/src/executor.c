@@ -30,6 +30,9 @@ static int exec_recipe(char *str, struct rule *rule, struct minimake *data)
     // --- EXPAND VARIABLES ---
     char *expanded = expand_recipe(str, rule, data);
 
+    if (!expanded)
+        return 1;
+
     // --- CHECK IF THERE IS A COMMAND ---
     char *cmd = expanded;
     if (expanded[0] == '@')
@@ -45,14 +48,14 @@ static int exec_recipe(char *str, struct rule *rule, struct minimake *data)
     if (pid < 0)
     {
         free(expanded);
-        errx(2, "Fork fail");
+        errx(2, "Fork fail. Stop");
     }
     // --- EXEC COMMAND IN THE CHILD ---
     else if (pid == 0)
     {
         execl("/bin/sh", "sh", "-c", cmd, NULL);
         destroy_minimake(data);
-        errx(2, "minimake: Error during command execution. Stop.");
+        errx(2, "Error during command execution. Stop.");
     }
 
     // --- WAIT FOR THE CHILD TO FINISH ---
@@ -110,7 +113,7 @@ static enum target_status build_target(char *target_name, struct minimake *data)
             return UP_TO_DATE;
         }
 
-        fprintf(stderr, "minimake: No rule to make target '%s'. Stop.", target_name);
+        fprintf(stderr, "minimake: No rule to make target '%s'. Stop.\n", target_name);
         return ERROR;
     }
 
@@ -187,7 +190,8 @@ static enum target_status build_target(char *target_name, struct minimake *data)
     while (cur_recipe != NULL)
     {
         // --- EXECUTE COMMAND ---
-        exec_recipe(cur_recipe->data, rule, data);
+        if (exec_recipe(cur_recipe->data, rule, data))
+            return ERROR;
         cur_recipe = cur_recipe->next;
     }
 
@@ -197,7 +201,7 @@ static enum target_status build_target(char *target_name, struct minimake *data)
 int executor(int argc, char *argv[], struct minimake *data)
 {
     if (!data || !data->rule)
-        errx(2, "minimake: No targets. Stop.");
+        errx(2, "No targets. Stop.");
 
     struct dlist *targets = dlist_init();
 
