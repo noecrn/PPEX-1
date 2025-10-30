@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include "parser.h"
 #include "dlist/dlist.h"
 #include "minimake.h"

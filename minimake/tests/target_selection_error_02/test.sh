@@ -10,7 +10,7 @@ NC='\033[0m'
 rm -f "$my_out"
 rm -f "$ref_out"
 
-make -f Makefile toto > "$ref_out"
+make --no-print-directory -f Makefile toto > "$ref_out"
 "../../src/minimake" -f Makefile toto > "$my_out"
 exit_code=$?
 
