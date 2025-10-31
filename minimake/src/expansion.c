@@ -249,8 +249,11 @@ char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)
 
                 if (var_name)
                 {
+                    // --- EXPAND NAME ---
+                    char *expanded_name = expand_immediate(var_name, data);
+
                     // --- GET VALUE OF VARIABLE ---
-                    char *value = find_in_var(var_name, data);
+                    char *value = find_in_var(expanded_name, data);
 
                     // --- RECURSIVE CALL IF VAR CONTAIN VAR ---
                     char *expanded_value = expand_immediate(value, data);
@@ -260,11 +263,12 @@ char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)
                     {
                         strcpy(res + res_i, expanded_value);
                         res_i += strlen(expanded_value);
-                        free(expanded_value);
                     }
 
                     // --- JUMP $(VAR) LENGTH ---
                     free(var_name);
+                    free(expanded_name);
+                    free(expanded_value);
                     i += len;
                 }
                 // --- INVALID CASE NO CLOSING BRACKET ---
