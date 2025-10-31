@@ -1,5 +1,0 @@
-Checks: '-*,readability-function-size'
-CheckOptions:
-  - key:             readability-function-size.LineLimit
-    value:           40
-

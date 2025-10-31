@@ -1,15 +1,9 @@
-#include <assert.h>
 #include <err.h>
-#include <errno.h>
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <time.h>
 #include <unistd.h>
 
 #include "destroy.h"
@@ -115,6 +109,38 @@ static bool is_target_processed(char *target_name, struct minimake *data)
     return false;
 }
 
+static enum target_status aux(bool do_we_build, char *target_name, struct rule *rule, struct minimake *data)
+{
+    // --- IF TARGET DON'T HAVE RECIPE ---
+    if (rule->recipe->size == 0)
+    {
+        // printf("minimake: Nothing to be done for '%s'.\n", target_name);
+        dlist_push_back(data->processed_targets, target_name);
+        return NOTHING_TO_BE_DONE;
+    }
+
+    // --- NO NEED TO BUILD ---
+    if (!do_we_build)
+    {
+        printf("minimake: '%s' is up to date.\n", target_name);
+        dlist_push_back(data->processed_targets, target_name);
+        return UP_TO_DATE;
+    }
+
+    // --- WE NEED TO BUILD ---
+    struct dlist_item *cur_recipe = rule->recipe->head;
+    while (cur_recipe != NULL)
+    {
+        // --- EXECUTE COMMAND ---
+        if (exec_recipe(cur_recipe->data, rule, data))
+            return ERROR;
+        cur_recipe = cur_recipe->next;
+    }
+
+    dlist_push_back(data->processed_targets, target_name);
+    return TO_BUILD;
+}
+
 static enum target_status build_target(char *target_name, struct minimake *data)
 {
     // --- CHECK IF THE RULE WAS ALREADY PROCESSED ---
@@ -193,34 +219,7 @@ static enum target_status build_target(char *target_name, struct minimake *data)
         }
     }
 
-    // --- IF TARGET DON'T HAVE RECIPE ---
-    if (rule->recipe->size == 0)
-    {
-        // printf("minimake: Nothing to be done for '%s'.\n", target_name);
-        dlist_push_back(data->processed_targets, target_name);
-        return NOTHING_TO_BE_DONE;
-    }
-
-    // --- NO NEED TO BUILD ---
-    if (!do_we_build)
-    {
-        printf("minimake: '%s' is up to date.\n", target_name);
-        dlist_push_back(data->processed_targets, target_name);
-        return UP_TO_DATE;
-    }
-
-    // --- WE NEED TO BUILD ---
-    struct dlist_item *cur_recipe = rule->recipe->head;
-    while (cur_recipe != NULL)
-    {
-        // --- EXECUTE COMMAND ---
-        if (exec_recipe(cur_recipe->data, rule, data))
-            return ERROR;
-        cur_recipe = cur_recipe->next;
-    }
-
-    dlist_push_back(data->processed_targets, target_name);
-    return TO_BUILD;
+    return aux(do_we_build, target_name, rule, data);
 }
 
 int executor(int argc, char *argv[], struct minimake *data)

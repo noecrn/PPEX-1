@@ -279,20 +279,6 @@ char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)
                     exit(2);
                 }
             }
-            else if (isalnum(str[i + 1]))
-            {
-                char var_name[2] = { str[i + 1], '\0' };
-                char *value = find_in_var(var_name, data);
-                char *expanded_value = expand_immediate(value, data);
-
-                if (expanded_value)
-                {
-                    strcpy(res + res_i, expanded_value);
-                    res_i += strlen(expanded_value);
-                    free(expanded_value);
-                }
-                i += 2;
-            }
             else
             {
                 res[res_i] = '$';
