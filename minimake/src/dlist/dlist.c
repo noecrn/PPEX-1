@@ -1,11 +1,11 @@
+#include "dlist.h"
+
 #include <assert.h>
 #include <err.h>
 #include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "dlist.h"
 
 struct dlist *dlist_init(void)
 {

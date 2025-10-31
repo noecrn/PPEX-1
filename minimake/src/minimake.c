@@ -1,16 +1,16 @@
 #define _POSIX_C_SOURCE 200809L
 
-#include "parser.h"
-#include "dlist/dlist.h"
-#include "destroy.h"
-#include "executor.h"
-
+#include <err.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <err.h>
+#include <unistd.h>
+
+#include "destroy.h"
+#include "dlist/dlist.h"
+#include "executor.h"
+#include "parser.h"
 
 void print_output(struct minimake *data)
 {
@@ -23,7 +23,7 @@ void print_output(struct minimake *data)
     while (cur_variable != NULL)
     {
         struct variable *temp = cur_variable->data;
-        printf("'%s' = '%s'\n",temp->name, temp->value);
+        printf("'%s' = '%s'\n", temp->name, temp->value);
         cur_variable = cur_variable->next;
     }
 
@@ -93,13 +93,15 @@ int main(int argc, char *argv[])
 
         if (strcmp(argv[i], "-f") == 0)
         {
-            if (i >= argc-1)
+            if (i >= argc - 1)
             {
-                errx(2, "Invalid argument, you must provide a path after -f. Stop.");
+                errx(2,
+                     "Invalid argument, you must provide a path after -f. "
+                     "Stop.");
             }
 
             // --- UPDATE FILEPATH ---
-            path = argv[i+1];
+            path = argv[i + 1];
             i++;
         }
         else if (strcmp(argv[i], "-h") == 0)
@@ -134,7 +136,7 @@ int main(int argc, char *argv[])
     // --- PRETTY PRINT ---
     if (flag_p)
         print_output(data);
-        
+
     // --- EXECUTE ALL MAKEFILE
     else
     {

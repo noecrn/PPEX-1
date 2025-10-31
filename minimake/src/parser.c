@@ -1,20 +1,20 @@
 #define _POSIX_C_SOURCE 200809L
 
-#include "minimake.h"
-#include "dlist/dlist.h"
-#include "expansion.h"
-
 #include <ctype.h>
+#include <err.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <err.h>
-#include <stdbool.h>
+
+#include "dlist/dlist.h"
+#include "expansion.h"
+#include "minimake.h"
 
 static char *remove_mid_space(char *str)
 {
     size_t len = strlen(str);
-    char *res = malloc(len + 1); 
+    char *res = malloc(len + 1);
     if (!res)
         errx(2, "Malloc failed. Stop.");
     res[0] = '\0';
@@ -105,7 +105,8 @@ static void trim_str_end(char *line)
     }
 }
 
-static void process_rule(char *line, struct rule *data, struct minimake *minimake)
+static void process_rule(char *line, struct rule *data,
+                         struct minimake *minimake)
 {
     // --- END THE LINE CORRECTLY ---
     line[strcspn(line, "\n")] = '\0';
@@ -127,7 +128,8 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
     // --- SPLIT DEPENDENCIES ---
     char *delim = " \t\n";
     char *saveptr;
-    for (char *token = strtok_r(dep, delim, &saveptr); token; token = strtok_r(NULL, delim, &saveptr))
+    for (char *token = strtok_r(dep, delim, &saveptr); token;
+         token = strtok_r(NULL, delim, &saveptr))
     {
         // --- EXPAND VARIABLES ---
         char *exp = expand_immediate(token, minimake);
@@ -136,7 +138,8 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
 
         // --- IF MULTIPLE DEPENDENCIES ---
         char *saveptr_sub;
-        for (char *sub = strtok_r(exp, delim, &saveptr_sub); sub; sub = strtok_r(NULL, delim, &saveptr_sub))
+        for (char *sub = strtok_r(exp, delim, &saveptr_sub); sub;
+             sub = strtok_r(NULL, delim, &saveptr_sub))
         {
             if (*sub == '\0')
                 continue;
@@ -153,7 +156,8 @@ static void process_rule(char *line, struct rule *data, struct minimake *minimak
     }
 }
 
-static void process_variable(char *line, struct variable *data, struct minimake *minimake)
+static void process_variable(char *line, struct variable *data,
+                             struct minimake *minimake)
 {
     // --- END THE LINE CORRECTLY ---
     line[strcspn(line, "\n")] = '\0';
@@ -263,7 +267,8 @@ struct minimake *read_file(char *argv)
     // --- READ FILE LINE BY LINE ---
     while ((read = getline(&line, &len, file)) != -1)
     {
-        if (strlen(line) == 0 || strspn(line, " \t") == strlen(line) || line[0] == '#' || line[0] == '\n')
+        if (strlen(line) == 0 || strspn(line, " \t") == strlen(line)
+            || line[0] == '#' || line[0] == '\n')
         {
             continue;
         }

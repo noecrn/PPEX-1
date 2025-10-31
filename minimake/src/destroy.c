@@ -1,7 +1,7 @@
-#include "minimake.h"
-#include "dlist/dlist.h"
-
 #include <stdlib.h>
+
+#include "dlist/dlist.h"
+#include "minimake.h"
 
 static void destroy_dependencies(struct dlist *data)
 {

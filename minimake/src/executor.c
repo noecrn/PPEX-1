@@ -1,21 +1,21 @@
-#include "minimake.h"
-#include "expansion.h"
-#include "destroy.h"
-#include "dlist/dlist.h"
-
 #include <assert.h>
 #include <err.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include <time.h>
+#include <unistd.h>
+
+#include "destroy.h"
+#include "dlist/dlist.h"
+#include "expansion.h"
+#include "minimake.h"
 
 enum target_status
 {
@@ -66,7 +66,8 @@ static int exec_recipe(char *str, struct rule *rule, struct minimake *data)
     // --- IF COMMAND FAILED ---
     if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) != 0)
     {
-        fprintf(stderr, "minimake: Command failed (error code %d). Stop.\n", WEXITSTATUS(wstatus));
+        fprintf(stderr, "minimake: Command failed (error code %d). Stop.\n",
+                WEXITSTATUS(wstatus));
         return 1;
     }
 
@@ -104,7 +105,7 @@ static time_t get_file_time(const char *path)
 static bool is_target_processed(char *target_name, struct minimake *data)
 {
     struct dlist_item *cur = data->processed_targets->head;
-    while(cur != NULL)
+    while (cur != NULL)
     {
         if (strcmp(cur->data, target_name) == 0)
             return true;
@@ -132,7 +133,8 @@ static enum target_status build_target(char *target_name, struct minimake *data)
             return UP_TO_DATE;
         }
 
-        fprintf(stderr, "minimake: No rule to make target '%s'. Stop.\n", target_name);
+        fprintf(stderr, "minimake: No rule to make target '%s'. Stop.\n",
+                target_name);
         return ERROR;
     }
 
@@ -194,7 +196,7 @@ static enum target_status build_target(char *target_name, struct minimake *data)
     // --- IF TARGET DON'T HAVE RECIPE ---
     if (rule->recipe->size == 0)
     {
-        //printf("minimake: Nothing to be done for '%s'.\n", target_name);
+        // printf("minimake: Nothing to be done for '%s'.\n", target_name);
         dlist_push_back(data->processed_targets, target_name);
         return NOTHING_TO_BE_DONE;
     }

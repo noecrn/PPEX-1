@@ -1,8 +1,5 @@
 #define _POSIX_C_SOURCE 200809L
 
-#include "parser.h"
-#include "dlist/dlist.h"
-#include "minimake.h"
 #include "expansion.h"
 
 #include <assert.h>
@@ -14,6 +11,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "dlist/dlist.h"
+#include "minimake.h"
+#include "parser.h"
 
 static char *find_in_var(char buf[], struct minimake *data)
 {
@@ -52,11 +53,11 @@ static char *get_var_name(const char *start, size_t *len)
     if (start[1] == '(')
     {
         // --- INVALID CASE NO CLOSING BRACKET ---
-        end = strchr(start+2, ')');
+        end = strchr(start + 2, ')');
         if (!end)
             return NULL;
 
-        size_t name_len = end - (start+2);
+        size_t name_len = end - (start + 2);
         *len = name_len + 3;
         char *name = malloc(name_len + 1);
         if (!name)
@@ -87,14 +88,14 @@ char *expand_immediate(char *str, struct minimake *data)
         if (str[i] == '$')
         {
             // --- SKIP $$ ---
-            if (str[i+1] == '$')
+            if (str[i + 1] == '$')
             {
                 res[res_i] = '$';
                 res_i++;
                 i += 2;
             }
             // --- CLASSIQUE CASE: $(VAR) ---
-            else if (str[i+1] == '(')
+            else if (str[i + 1] == '(')
             {
                 size_t len = 0;
                 char *var_name = get_var_name(&str[i], &len);
@@ -196,7 +197,7 @@ char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)
             i++;
         }
         // --- HANDLE $$ ---
-        else if (str[i+1] == '$')
+        else if (str[i + 1] == '$')
         {
             res[res_i] = '$';
             res_i++;
@@ -205,14 +206,14 @@ char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)
         else
         {
             // --- IF $@ ADD TARGET ---
-            if (str[i+1] == '@')
+            if (str[i + 1] == '@')
             {
                 strcpy(res + res_i, cur_rule->target);
                 res_i += strlen(cur_rule->target);
                 i += 2;
             }
             // --- IF $< ADD THE FIRST DEPENDENCIE ---
-            else if (str[i+1] == '<')
+            else if (str[i + 1] == '<')
             {
                 if (cur_rule->dependencies->head != NULL)
                 {
@@ -223,7 +224,7 @@ char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)
                 i += 2;
             }
             // --- IF $^ RETURN ALL DEPENDENCIES ---
-            else if (str[i+1] == '^')
+            else if (str[i + 1] == '^')
             {
                 struct dlist_item *cur = cur_rule->dependencies->head;
                 while (cur != NULL)
