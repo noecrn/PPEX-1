@@ -8,10 +8,11 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 rm -f "$my_out"
-rm -f "$ref_out"
 
-make --no-print-directory -f Makefile > "$ref_out"
-"../../src/minimake" -f Makefile > "$my_out"
+echo "older_file" > file.c
+echo "younger_file" > file.o
+
+"../../src/minimake" -f Makefile file.o > "$my_out"
 exit_code=$?
 
 # --- CHECK EXIT CODE ---

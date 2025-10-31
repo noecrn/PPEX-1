@@ -101,8 +101,27 @@ static time_t get_file_time(const char *path)
     return 0;
 }
 
+static bool is_target_processed(char *target_name, struct minimake *data)
+{
+    struct dlist_item *cur = data->processed_targets->head;
+    while(cur != NULL)
+    {
+        if (strcmp(cur->data, target_name) == 0)
+            return true;
+        cur = cur->next;
+    }
+
+    return false;
+}
+
 static enum target_status build_target(char *target_name, struct minimake *data)
 {
+    // --- CHECK IF THE RULE WAS ALREADY PROCESSED ---
+    if (is_target_processed(target_name, data))
+    {
+        return UP_TO_DATE;
+    }
+
     // --- FIND THE RULE ---
     struct rule *rule = find_rule(target_name, data);
     if (!rule)
@@ -176,6 +195,7 @@ static enum target_status build_target(char *target_name, struct minimake *data)
     if (rule->recipe->size == 0)
     {
         printf("minimake: Nothing to be done for '%s'.\n", target_name);
+        dlist_push_back(data->processed_targets, target_name);
         return NOTHING_TO_BE_DONE;
     }
 
@@ -183,6 +203,7 @@ static enum target_status build_target(char *target_name, struct minimake *data)
     if (!do_we_build)
     {
         printf("minimake: '%s' is up to date.\n", target_name);
+        dlist_push_back(data->processed_targets, target_name);
         return UP_TO_DATE;
     }
 
@@ -196,6 +217,7 @@ static enum target_status build_target(char *target_name, struct minimake *data)
         cur_recipe = cur_recipe->next;
     }
 
+    dlist_push_back(data->processed_targets, target_name);
     return TO_BUILD;
 }
 
