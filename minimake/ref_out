@@ -1,1 +1,0 @@
-gcc -std=c99 -pedantic -Werror -Wall -Wextra -Wvla -g -fsanitize=address -fsanitize=address src/minimake.o src/parser.o src/expansion.o src/destroy.o src/executor.o src/dlist/dlist_1.o src/dlist/dlist_2.o src/dlist/dlist_3.o -o src/minimake

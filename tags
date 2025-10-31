@@ -9,43 +9,54 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	5.9.0	//
+$(FOO)	minimake/tests/recursive_variable_01/makefile	/^$(FOO)=2/;"	m
 $(VAR)	minimake/tests/variable_expansion_02/Makefile	/^$(VAR)=Hello, World!$/;"	m
 %.o	minimake/tests/target_selection_error_01/Makefile	/^%.o: %.c$/;"	t
 %.o	minimake/tests/target_selection_error_02/Makefile	/^%.o: %.c$/;"	t
 B	minimake/tests/pretty_print/Makefile	/^ B 	 =  	  B_var_beginning	B_var_end$/;"	m
+BAR	minimake/tests/recursive_variable_01/makefile	/^BAR=4$/;"	m
 CC	minimake/Makefile	/^CC=gcc$/;"	m
-CC	minimake/src/Makefile	/^CC=gcc$/;"	m
 CFLAGS	minimake/Makefile	/^CFLAGS=-std=c99 -pedantic -Werror -Wall -Wextra -Wvla -g -fsanitize=address$/;"	m
-CFLAGS	minimake/src/Makefile	/^CFLAGS=-std=c99 -pedantic -Werror -Wall -Wextra -Wvla -g -fsanitize=address$/;"	m
 DESTROY_H	minimake/src/destroy.h	/^#define DESTROY_H$/;"	d
 DLIST_H	minimake/src/dlist/dlist.h	/^#define DLIST_H$/;"	d
 ERROR	minimake/src/executor.c	/^    ERROR \/\/ ERROR OCCURED$/;"	e	enum:target_status	file:
 EXECUTOR_H	minimake/src/executor.h	/^#define EXECUTOR_H$/;"	d
 EXPANSION_H	minimake/src/expansion.h	/^#define EXPANSION_H$/;"	d
 FILE	minimake/tests/variable_expansion_01/Makefile	/^FILE=foo bar$/;"	m
+FOO	minimake/tests/recursive_variable_01/makefile	/^FOO=$(BAR)$/;"	m
 FOO	minimake/tests/variable_expansion_at_execution_01/Makefile	/^FOO  =  42   $/;"	m
 FOO	minimake/tests/variable_expansion_at_execution_02/Makefile	/^FOO  =  42   $/;"	m
 LDFLAGS	minimake/Makefile	/^LDFLAGS=-fsanitize=address$/;"	m
-LDFLAGS	minimake/src/Makefile	/^LDFLAGS=-fsanitize=address$/;"	m
 MINIMAKE_H	minimake/src/minimake.h	/^#define MINIMAKE_H$/;"	d
 NOTHING_TO_BE_DONE	minimake/src/executor.c	/^    NOTHING_TO_BE_DONE, \/\/ RECIPE ALREADY EMPTY AND UP-TO-DATE$/;"	e	enum:target_status	file:
 OBJS	minimake/Makefile	/^OBJS=$(SRCS:.c=.o)$/;"	m
-OBJS	minimake/src/Makefile	/^OBJS=$(SRCS:.c=.o)$/;"	m
 PARSER_H	minimake/src/parser.h	/^#define PARSER_H$/;"	d
 SIMPLE_VAR	minimake/tests/pretty_print/Makefile	/^SIMPLE_VAR = coucou$/;"	m
 SIMPLE_VAR_COMMENT	minimake/tests/pretty_print/Makefile	/^SIMPLE_VAR_COMMENT = the comment is gone # comment$/;"	m
 SPACES_BEFORE_TAB	minimake/tests/pretty_print/Makefile	/^ 	SPACES_BEFORE_TAB =  	  var_beginning	var_end$/;"	m
 SRCS	minimake/Makefile	/^SRCS=src\/minimake.c src\/parser.c src\/expansion.c src\/destroy.c src\/executor.c src\/dlist\/d/;"	m
-SRCS	minimake/src/Makefile	/^SRCS=minimake.c parser.c expansion.c destroy.c executor.c dlist\/dlist_1.c dlist\/dlist_2.c dlis/;"	m
 TO_BUILD	minimake/src/executor.c	/^    TO_BUILD, \/\/ TARGET HAS BEEN BUILT$/;"	e	enum:target_status	file:
 UP_TO_DATE	minimake/src/executor.c	/^    UP_TO_DATE, \/\/ FILE ALREADY EXIST AND UP-TO-DATE$/;"	e	enum:target_status	file:
+VAR	minimake/tests/advanced_features_01/Makefile	/^VAR = test # a comment$/;"	m
+VAR	minimake/tests/advanced_features_02/Makefile	/^VAR = test # a comment$/;"	m
 VAR	minimake/tests/variable_expansion_02/Makefile	/^VAR=FOO$/;"	m
 VAR	minimake/tests/variable_expansion_at_execution_error_01/Makefile	/^VAR=42$/;"	m
 _POSIX_C_SOURCE	minimake/src/expansion.c	/^#define _POSIX_C_SOURCE /;"	d	file:
 _POSIX_C_SOURCE	minimake/src/minimake.c	/^#define _POSIX_C_SOURCE /;"	d	file:
 _POSIX_C_SOURCE	minimake/src/parser.c	/^#define _POSIX_C_SOURCE /;"	d	file:
 all	minimake/Makefile	/^all: minimake$/;"	t
-all	minimake/src/Makefile	/^all: $(OBJS)$/;"	t
+all	minimake/tests/advanced_features_01/Makefile	/^all: # a comment$/;"	t
+all	minimake/tests/advanced_features_02/Makefile	/^all: # a comment$/;"	t
+all	minimake/tests/command_execution_01/Makefile	/^all:$/;"	t
+all	minimake/tests/command_execution_02/Makefile	/^all:$/;"	t
+all	minimake/tests/command_execution_03/Makefile	/^all:$/;"	t
+all	minimake/tests/environment_variables_01/makefile	/^all:$/;"	t
+all	minimake/tests/makefile_selection_03/makefile	/^all:$/;"	t
+all	minimake/tests/recursive_variable_01/makefile	/^all:$/;"	t
+all	minimake/tests/special_variable_01/makefile	/^all: foo bar$/;"	t
+all	minimake/tests/target_building_01/Makefile	/^all: toto$/;"	t
+all	minimake/tests/target_building_02/Makefile	/^all: toto$/;"	t
+all	minimake/tests/target_deduplication_01/Makefile	/^all:$/;"	t
 all	minimake/tests/target_selection_error_03/Makefile	/^all: tutu$/;"	t
 all	minimake/tests/variable_expansion_01/Makefile	/^all: $(FILE)$/;"	t
 all	minimake/tests/variable_expansion_02/Makefile	/^all:$/;"	t
@@ -56,10 +67,10 @@ aux	minimake/src/dlist/dlist_2.c	/^static char *aux(struct dlist *list)$/;"	f	ty
 aux	minimake/src/dlist/dlist_3.c	/^static struct dlist_item *aux(struct dlist_item *list)$/;"	f	typeref:struct:dlist_item *	file:
 aux_2	minimake/src/dlist/dlist_2.c	/^static char *aux_2(struct dlist *list)$/;"	f	typeref:typename:char *	file:
 aux_2	minimake/src/dlist/dlist_3.c	/^struct dlist *aux_2(struct dlist *list, struct dlist_item *cur, int index)$/;"	f	typeref:struct:dlist *
+bar	minimake/tests/special_variable_01/makefile	/^bar:/;"	t
 build_target	minimake/src/executor.c	/^static enum target_status build_target(char *target_name, struct minimake *data)$/;"	f	typeref:enum:target_status	file:
 check	minimake/Makefile	/^check: minimake$/;"	t
 clean	minimake/Makefile	/^clean:$/;"	t
-clean	minimake/src/Makefile	/^clean:$/;"	t
 command_space_rule	minimake/tests/pretty_print/Makefile	/^command_space_rule: depa depb$/;"	t
 data	minimake/src/dlist/dlist.h	/^    void *data;$/;"	m	struct:dlist_item	typeref:typename:void *
 dependencies	minimake/src/minimake.h	/^    struct dlist *dependencies;$/;"	m	struct:rule	typeref:struct:dlist *
@@ -68,6 +79,7 @@ destroy_minimake	minimake/src/destroy.c	/^void destroy_minimake(struct minimake 
 destroy_rules	minimake/src/destroy.c	/^static void destroy_rules(struct dlist *data)$/;"	f	typeref:typename:void	file:
 destroy_variables	minimake/src/destroy.c	/^static void destroy_variables(struct dlist *data)$/;"	f	typeref:typename:void	file:
 dlist	minimake/src/dlist/dlist.h	/^struct dlist$/;"	s
+dlist.h	.vscode/settings.json	/^		"dlist.h": "c"$/;"	s	object:files.associations
 dlist_clear	minimake/src/dlist/dlist_2.c	/^void dlist_clear(struct dlist *list)$/;"	f	typeref:typename:void
 dlist_concat	minimake/src/dlist/dlist_3.c	/^void dlist_concat(struct dlist *list1, struct dlist *list2)$/;"	f	typeref:typename:void
 dlist_find	minimake/src/dlist/dlist_2.c	/^int dlist_find(const struct dlist *list, char *element)$/;"	f	typeref:typename:int
@@ -82,15 +94,22 @@ dlist_remove_at	minimake/src/dlist/dlist_2.c	/^char *dlist_remove_at(struct dlis
 dlist_reverse	minimake/src/dlist/dlist_3.c	/^void dlist_reverse(struct dlist *list)$/;"	f	typeref:typename:void
 dlist_size	minimake/src/dlist/dlist_1.c	/^size_t dlist_size(const struct dlist *list)$/;"	f	typeref:typename:size_t
 dlist_split_at	minimake/src/dlist/dlist_3.c	/^struct dlist *dlist_split_at(struct dlist *list, size_t index)$/;"	f	typeref:struct:dlist *
+empty	minimake/tests/target_building_nothing_to_be_done_01/Makefile	/^empty:$/;"	t
+empty	minimake/tests/target_building_nothing_to_be_done_02/Makefile	/^empty:$/;"	t
 exec_recipe	minimake/src/executor.c	/^static int exec_recipe(char *str, struct rule *rule, struct minimake *data)$/;"	f	typeref:typename:int	file:
 executor	minimake/src/executor.c	/^int executor(int argc, char *argv[], struct minimake *data)$/;"	f	typeref:typename:int
 expand	minimake/src/expansion.c	/^char *expand(char *str, struct minimake *data)$/;"	f	typeref:typename:char *
 expand_immediate	minimake/src/expansion.c	/^char *expand_immediate(char *str, struct minimake *data)$/;"	f	typeref:typename:char *
 expand_recipe	minimake/src/expansion.c	/^char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)$/;"	f	typeref:typename:char *
-expansion.h	.vscode/settings.json	/^		"expansion.h": "c"$/;"	s	object:files.associations
+expansion.h	.vscode/settings.json	/^		"expansion.h": "c",$/;"	s	object:files.associations
+file.c	minimake/tests/target_building_nothing_to_be_done_01/Makefile	/^file.c:/;"	t
+file.c	minimake/tests/target_building_nothing_to_be_done_02/Makefile	/^file.c:/;"	t
+file.o	minimake/tests/target_building_03/Makefile	/^file.o: file.c$/;"	t
 files.associations	.vscode/settings.json	/^	"files.associations": {$/;"	o
 find_in_var	minimake/src/expansion.c	/^static char *find_in_var(char buf[], struct minimake *data)$/;"	f	typeref:typename:char *	file:
 find_rule	minimake/src/executor.c	/^static struct rule *find_rule(char *target_name, struct minimake *data)$/;"	f	typeref:struct:rule *	file:
+foo	minimake/tests/special_variable_01/makefile	/^foo:$/;"	t
+foo.o	minimake/tests/target_building_up_to_date_01/Makefile	/^foo.o: foo.c$/;"	t
 func_dir	minimake/tests/test_suite.sh	/^func_dir () {$/;"	f
 func_file	minimake/tests/test_suite.sh	/^func_file () {$/;"	f
 get_file_time	minimake/src/executor.c	/^static time_t get_file_time(const char *path)$/;"	f	typeref:typename:time_t	file:
@@ -98,6 +117,7 @@ get_var_name	minimake/src/expansion.c	/^static char *get_var_name(const char *st
 get_var_name_recipe	minimake/src/expansion.c	/^static char *get_var_name_recipe(const char *start, size_t *len)$/;"	f	typeref:typename:char *	file:
 head	minimake/src/dlist/dlist.h	/^    struct dlist_item *head;$/;"	m	struct:dlist	typeref:struct:dlist_item *
 index_null	minimake/src/dlist/dlist_3.c	/^static struct dlist *index_null(struct dlist *list)$/;"	f	typeref:struct:dlist *	file:
+is_target_processed	minimake/src/executor.c	/^static bool is_target_processed(char *target_name, struct minimake *data)$/;"	f	typeref:typename:bool	file:
 main	minimake/src/minimake.c	/^int main(int argc, char *argv[])$/;"	f	typeref:typename:int
 minimake	minimake/Makefile	/^minimake: $(OBJS)$/;"	t
 minimake	minimake/src/minimake.h	/^struct minimake$/;"	s
@@ -110,6 +130,7 @@ prev	minimake/src/dlist/dlist.h	/^    struct dlist_item *prev;$/;"	m	struct:dlis
 print_output	minimake/src/minimake.c	/^void print_output(struct minimake *data)$/;"	f	typeref:typename:void
 process_rule	minimake/src/parser.c	/^static void process_rule(char *line, struct rule *data, struct minimake *minimake)$/;"	f	typeref:typename:void	file:
 process_variable	minimake/src/parser.c	/^static void process_variable(char *line, struct variable *data, struct minimake *minimake)$/;"	f	typeref:typename:void	file:
+processed_targets	minimake/src/minimake.h	/^    struct dlist *processed_targets;$/;"	m	struct:minimake	typeref:struct:dlist *
 read_file	minimake/src/parser.c	/^struct minimake *read_file(char *argv)$/;"	f	typeref:struct:minimake *
 recipe	minimake/src/minimake.h	/^    struct dlist *recipe;$/;"	m	struct:rule	typeref:struct:dlist *
 recipe	minimake/src/parser.c	/^static void recipe(struct rule *last_rule, char *line)$/;"	f	typeref:typename:void	file:
@@ -118,6 +139,7 @@ rule	minimake/src/minimake.h	/^    struct dlist *rule;$/;"	m	struct:minimake	typ
 rule	minimake/src/minimake.h	/^struct rule$/;"	s
 rule	minimake/src/parser.c	/^static struct rule *rule(char *line, struct minimake *data)$/;"	f	typeref:struct:rule *	file:
 rule_comment	minimake/tests/pretty_print/Makefile	/^rule_comment: depa depb # comment$/;"	t
+set_path	minimake/src/minimake.c	/^static char *set_path(void)$/;"	f	typeref:typename:char *	file:
 silent_rule	minimake/tests/pretty_print/Makefile	/^silent_rule: depa depb$/;"	t
 simple_rule	minimake/tests/pretty_print/Makefile	/^simple_rule: simple_dep$/;"	t
 size	minimake/src/dlist/dlist.h	/^    size_t size;$/;"	m	struct:dlist	typeref:typename:size_t
@@ -125,6 +147,8 @@ sparse_rule	minimake/tests/pretty_print/Makefile	/^sparse_rule: depa depb$/;"	t
 tail	minimake/src/dlist/dlist.h	/^    struct dlist_item *tail;$/;"	m	struct:dlist	typeref:struct:dlist_item *
 target	minimake/src/minimake.h	/^    char *target;$/;"	m	struct:rule	typeref:typename:char *
 target_status	minimake/src/executor.c	/^enum target_status$/;"	g	file:
+toto	minimake/tests/target_building_01/Makefile	/^toto:$/;"	t
+toto	minimake/tests/target_building_02/Makefile	/^toto:$/;"	t
 trim_str	minimake/src/parser.c	/^static void trim_str(char *line)$/;"	f	typeref:typename:void	file:
 trim_str_end	minimake/src/parser.c	/^static void trim_str_end(char *line)$/;"	f	typeref:typename:void	file:
 value	minimake/src/minimake.h	/^    char *value;$/;"	m	struct:variable	typeref:typename:char *
