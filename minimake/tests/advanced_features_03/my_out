@@ -1,0 +1,3 @@
+echo a $(VAR) line # with a comment
+a line
+# just a comment

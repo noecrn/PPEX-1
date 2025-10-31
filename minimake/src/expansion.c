@@ -304,13 +304,3 @@ char *expand_recipe(char *str, struct rule *cur_rule, struct minimake *data)
     res[res_i] = '\0';
     return strdup(res);
 }
-
-char *expand(char *str, struct minimake *data)
-{
-    if (!data || strchr(str, '$') == NULL)
-        return str;
-
-    char *res = expand_immediate(str, data);
-
-    return res;
-}
