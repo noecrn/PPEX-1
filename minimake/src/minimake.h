@@ -20,6 +20,7 @@ struct minimake
 {
     struct dlist *variable;
     struct dlist *rule;
+    struct dlist *processed_targets;
 };
 
 void print_output(struct minimake *data);

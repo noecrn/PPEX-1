@@ -1,0 +1,5 @@
+A=42
+echo "will not print A: -$A-"
+will not print A: --
+A=42; echo "will print A: -$A-"
+will print A: -42-

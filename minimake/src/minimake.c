@@ -103,6 +103,8 @@ int main(int argc, char *argv[])
     if (!data)
         return 2;
 
+    data->processed_targets = dlist_init();
+
     // --- PRINT HELP MESSAGE ---
     if (flag_h)
     {

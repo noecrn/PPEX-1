@@ -167,14 +167,15 @@ static enum target_status build_target(char *target_name, struct minimake *data)
                 do_we_build = true;
                 break;
             }
+
+            cur_dep = cur_dep->next;
         }
     }
 
     // --- IF TARGET DON'T HAVE RECIPE ---
     if (rule->recipe->size == 0)
     {
-        if (!do_we_build)
-            printf("minimake: Nothing to be done for '%s'.\n", target_name);
+        printf("minimake: Nothing to be done for '%s'.\n", target_name);
         return NOTHING_TO_BE_DONE;
     }
 

@@ -70,12 +70,15 @@ void destroy_minimake(struct minimake *data)
 
     destroy_variables(data->variable);
     destroy_rules(data->rule);
+    dlist_clear(data->processed_targets);
 
     free(data->variable);
     free(data->rule);
+    free(data->processed_targets);
 
     data->variable = NULL;
     data->rule = NULL;
+    data->processed_targets = NULL;
 
     free(data);
 }
