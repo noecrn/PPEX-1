@@ -7,6 +7,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <err.h>
@@ -65,9 +66,22 @@ void print_output(struct minimake *data)
     }
 }
 
+static char *set_path(void)
+{
+    // --- CHECK IF makefile EXIST ---
+    if (access("../makefile", F_OK) == 0)
+        return "../makefile";
+    // --- CHECK IF Makefile EXIST ---
+    else if (access("../Makefile", F_OK) == 0)
+        return "../Makefile";
+    // --- NO MAKEFILE EXIST ---
+    else
+        errx(2, "*** No targets specified and no makefile found. Stop.");
+}
+
 int main(int argc, char *argv[])
 {
-    char *path = "../Makefile";
+    char *path = NULL;
     bool flag_h = false;
     bool flag_p = false;
 
@@ -97,6 +111,10 @@ int main(int argc, char *argv[])
             flag_p = true;
         }
     }
+
+    // --- USE DEFAULT PATH ---
+    if (!path)
+        path = set_path();
 
     // --- LOAD PARSED MAKEFILE ---
     struct minimake *data = read_file(path);
