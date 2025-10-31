@@ -194,7 +194,7 @@ static enum target_status build_target(char *target_name, struct minimake *data)
     // --- IF TARGET DON'T HAVE RECIPE ---
     if (rule->recipe->size == 0)
     {
-        printf("minimake: Nothing to be done for '%s'.\n", target_name);
+        //printf("minimake: Nothing to be done for '%s'.\n", target_name);
         dlist_push_back(data->processed_targets, target_name);
         return NOTHING_TO_BE_DONE;
     }
@@ -249,6 +249,9 @@ int executor(int argc, char *argv[], struct minimake *data)
     // --- IF NO TARGET FOUND, EXECUTE DEFAULT TARGET ---
     if (targets->size == 0)
     {
+        if (!data->rule->head)
+            errx(2, "*** No targets. Stop.");
+
         struct rule *temp = data->rule->head->data;
         dlist_push_back(targets, temp->target);
     }

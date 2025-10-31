@@ -9,16 +9,16 @@ NC='\033[0m'
 rm -f "$my_out"
 rm -f "$ref_out"
 
-make --no-print-directory -f Makefile > "$ref_out"
+make --no-print-directory -f Makefile > "$ref_out" 2> /dev/null
 expected_code=$?
-"../../src/minimake" -f Makefile > "$my_out"
+"../../src/minimake" -f Makefile > "$my_out" 2> /dev/null
 exit_code=$?
 
 # --- CHECK EXIT CODE ---
 if [ "$exit_code" -ne "$expected_code" ]; then
-    echo $RED KO, Wrong exit code $NC
-	echo $RED Expected: $expected_code $NC
-	echo $RED Got: $exit_code $NC
+    echo KO, Wrong exit code
+	echo Expected: $expected_code
+	echo Got: $exit_code
 	exit 1
 fi
 

@@ -9,7 +9,7 @@ NC='\033[0m'
 
 rm -f "$my_out"
 
-"../../src/minimake" -p -f Makefile > "$my_out" 2> /dev/null
+"../../src/minimake" > "$my_out" 2> /dev/null
 exit_code=$?
 
 # --- CHECK EXIT CODE ---

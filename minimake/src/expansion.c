@@ -34,6 +34,12 @@ static char *find_in_var(char buf[], struct minimake *data)
         cur = cur->next;
     }
 
+    // --- CHECK IF IT'S ENVIRONMENT VARIABLE ---
+    if (getenv(buf) != NULL)
+    {
+        return getenv("EDITOR");
+    }
+
     // --- NOTHING FOUND ---
     return "";
 }
